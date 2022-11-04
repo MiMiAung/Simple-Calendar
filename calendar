@@ -1,0 +1,317 @@
+<html>
+  <head>
+    <style>
+      .today {
+        background-color: skyblue;
+        color: white;
+      }
+      .flex-container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .flex-item {
+        padding: 20px;
+      }
+      h1 {
+        display: inline;
+      }
+      .spanlt {
+        margin-left: 10px;
+        margin-right: 10px;
+        font-size: 30px;
+        cursor: pointer;
+      }
+
+      .spangt {
+        margin-left: 10px;
+        margin-right: 10px;
+        font-size: 30px;
+        cursor: pointer;
+      }
+
+      #year {
+        width: 80px;
+        height: 40px;
+        border-radius: 5em;
+        border: 1px solid blueviolet;
+
+        padding: 5px;
+        margin: 0 20px;
+      }
+
+      .incbtn {
+        border-radius: 5em;
+        border: 1px solid blueviolet;
+
+        padding: 5px;
+        margin-right: 20px;
+      }
+
+      .decbtn {
+        border-radius: 5em;
+        border: 1px solid blueviolet;
+
+        padding: 5px;
+        margin-right: 20px;
+      }
+
+      .spanlt {
+        color: blue;
+      }
+      .spanlt:hover {
+        background-color: gray;
+        color: white;
+        border-radius: 0.5em;
+        padding: 2px;
+      }
+
+      .spangt {
+        color: blue;
+      }
+      .spangt:hover {
+        background-color: gray;
+        color: white;
+        border-radius: 0.5em;
+        padding: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <label for="month">Select Month</label>
+      <select id="month">
+        <option value="0">January</option>
+        <option value="1">February</option>
+        <option value="2">March</option>
+        <option value="3">April</option>
+        <option value="4">May</option>
+        <option value="5">June</option>
+        <option value="6">July</option>
+        <option value="7">August</option>
+        <option value="8">September</option>
+        <option value="9">October</option>
+        <option value="10">November</option>
+        <option value="11">December</option>
+      </select>
+
+      <label for="year" id="year"></label>
+
+      <br />
+      <br />
+
+      <h1></h1>
+
+      <div id="divParent">
+        <div id="calendar"></div>
+      </div>
+    </div>
+
+    <script>
+      let divParent = document.getElementById("divParent");
+      let selectMonth = document.getElementById("month");
+      let labelYear = document.getElementById("year");
+      let h1 = document.querySelector("h1");
+      let divCalendar = document.getElementById("calendar");
+      let showBtn = document.getElementById("showYear");
+
+      let spanlt = document.createElement("span");
+      let spangt = document.createElement("span");
+      spanlt.setAttribute("class", "spanlt");
+      spangt.setAttribute("class", "spangt");
+
+      let incBtn = document.createElement("button");
+      incBtn.innerText = "IncYear";
+      incBtn.setAttribute("class", "incbtn");
+
+      let decBtn = document.createElement("button");
+      decBtn.setAttribute("class", "decbtn");
+      decBtn.innerText = "DecYear";
+      labelYear.after(incBtn);
+      incBtn.after(decBtn);
+
+      let divCollapseOne, divCollapseTwo;
+      let divCollapseParent = document.createElement("div");
+
+      let todayDate = new Date();
+      let year = todayDate.getFullYear();
+      let currentMonth = todayDate.getMonth();
+      const options = { month: "long" };
+      const Month = new Intl.DateTimeFormat("en-US", options);
+
+      let targetValue = currentMonth;
+
+      function showingTodayMonthInSelectE() {
+        let fullNameMonth = Month.format(todayDate);
+        console.log(fullNameMonth);
+
+        labelYear.textContent = "Year " + year;
+
+        let optionList = selectMonth.children;
+        for (let i = 0, list = optionList.length; i < list; i++) {
+          if (optionList[i].value == todayDate.getMonth()) {
+            optionList[i].selected = true;
+            h1.innerText = fullNameMonth + " " + year;
+
+            createCalendar(divCalendar, todayDate, optionList[i].value);
+            return;
+          }
+        }
+      }
+
+      showingTodayMonthInSelectE();
+
+      selectMonth.addEventListener("click", (e) => {
+        targetValue = e.target.value;
+
+        let currentMonthDate = new Date(year, targetValue);
+        let fullNameMonth = Month.format(currentMonthDate);
+        h1.innerText = fullNameMonth + " " + year;
+
+        createCalendar(divCalendar, currentMonthDate, targetValue);
+      });
+
+      selectMonth.addEventListener("click", (e) => {
+        if (divCollapseParent != null) {
+          divParent.replaceChild(divCalendar, divCollapseParent);
+          divCollapseParent = null;
+        }
+
+        spangt.remove();
+        spanlt.remove();
+        labelYear.after(incBtn);
+        incBtn.after(decBtn);
+      });
+
+      incBtn.addEventListener("click", () => {
+        year = year + 1;
+        yearChangesWithOneMonth(year);
+      });
+      decBtn.addEventListener("click", () => {
+        year = year - 1;
+        yearChangesWithOneMonth(year);
+      });
+
+      function yearChangesWithOneMonth(year) {
+        labelYear.textContent = "Year " + year;
+        date = new Date(year, targetValue);
+        let fullNameMonth = Month.format(date);
+        h1.innerText = fullNameMonth + " " + year;
+        createCalendar(divCalendar, date, targetValue);
+      }
+
+      function createCalendar(elem, d, month) {
+        let date = new Date(d.getFullYear(), month);
+
+        console.log("date=> ", date, "d", d);
+        console.log("elem => ", elem);
+        let fullNameMonth = Month.format(date);
+        let caption = "";
+        if (elem != divCalendar) {
+          caption = fullNameMonth + date.getFullYear();
+        }
+
+        let table = `<table>
+                            <caption>${caption}</caption>
+                            <tr>
+                                <th>Sun</th>
+                                <th>Mon</th>
+                                <th>Tue</th>
+                                <th>Wed</th>
+                                <th>Thu</th>
+                                <th>Fri</th>
+                                <th>Sat</th>
+                            </tr>
+                            <tr>
+                                `;
+
+        for (let i = 0; i < date.getDay(); i++) {
+          table += "<td></td>";
+        }
+
+        while (date.getMonth() == month) {
+          if (
+            todayDate.getDate() == date.getDate() &&
+            todayDate.getMonth() == date.getMonth() &&
+            todayDate.getFullYear() == date.getFullYear()
+          ) {
+            table += '<td class="today" >' + date.getDate() + "</td>";
+          } else {
+            table += "<td >" + date.getDate() + "</td>";
+          }
+
+          if (date.getDay() == 6) {
+            table += "</tr><tr>";
+          }
+
+          date.setDate(date.getDate() + 1);
+        }
+
+        if (date.getDay() != 0) {
+          for (let i = date.getDay(); i < 7; i++) {
+            table += "<td></td>";
+          }
+        }
+
+        table += "</tr></table>";
+
+        elem.innerHTML = table;
+        return elem;
+      }
+
+      labelYear.addEventListener("click", () => {
+        decBtn.remove();
+        incBtn.remove();
+        labelYear.textContent = "Year " + year;
+        divCollapseParent = document.createElement("div");
+        divCollapseParent.setAttribute("id", "divCollapseParent");
+        divCollapseOne = showAllMonths(year);
+        divCollapseParent.append(divCollapseOne);
+        divCalendar.replaceWith(divCollapseParent);
+      });
+
+      function showAllMonths(year) {
+        h1.textContent = year;
+        spanlt.innerHTML = "&lt;&lt;&lt;";
+        spangt.innerHTML = "&gt;&gt;&gt;";
+        h1.before(spanlt);
+        h1.after(spangt);
+
+        let divCollapse = document.createElement("div");
+
+        divCollapse.setAttribute("class", "flex-container");
+        divCollapse.setAttribute("id", "divCollapse");
+
+        for (let i = 0; i < 12; i++) {
+          let div = document.createElement("div");
+          div.setAttribute("class", "flex-item");
+          let date = new Date(year, i);
+          if (year == todayDate.getFullYear()) {
+            divCollapse.append(createCalendar(div, date, i));
+          } else if (year != todayDate.getFullYear()) {
+            //console.log('not equal...')
+            divCollapse.append(createCalendar(div, date, i));
+          }
+        }
+        return divCollapse;
+      }
+
+      spanlt.addEventListener("click", () => {
+        year = year - 1;
+        yearChangesWithAllMonths(year);
+      });
+
+      spangt.addEventListener("click", () => {
+        year = year + 1;
+        yearChangesWithAllMonths(year);
+      });
+
+      function yearChangesWithAllMonths(year) {
+        h1.innerText = year;
+        labelYear.textContent = "Year " + year;
+        divCollapseTwo = showAllMonths(year);
+        divCollapseParent.replaceChild(divCollapseTwo, divCollapseOne);
+        divCollapseOne = divCollapseTwo;
+      }
+    </script>
+  </body>
+</html>
